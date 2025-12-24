@@ -118,7 +118,7 @@ OperationRes executeCommand(Storage *storage, const ParsedCommand &cmd, std::str
     NamedStructure *namedStruct = storageFind(storage, cmd.structure_name);
     if (!namedStruct) {
          if (cmd.operation == "DELETE" || cmd.operation == "EXISTS") {
-             // 
+             //
          } else {
              return OperationRes::NOT_FOUND;
          }
