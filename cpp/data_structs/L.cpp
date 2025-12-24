@@ -12,25 +12,26 @@
 // PRINT <имя_структуры>
 
 #include <iostream>
+#include <utility>
 
 #include "structures.h"
 
-L::L(const std::string& name) : name_(name) {}
+L::L(std::string name) : name_(std::move(name)) {}
 
 L::~L() {
   LNode* current = head_;
-  while (current) {
+  while (current != nullptr) {
     LNode* next = current->next;
     delete current;
     current = next;
   }
 }
 
-OperationRes L::pushFront(const std::string& value) {
-  LNode* newNode = new LNode;
+auto L::pushFront(const std::string& value) -> OperationRes {
+  auto* newNode = new LNode;
   newNode->value = value;
 
-  if (!head_) {  // список пуст
+  if (head_ == nullptr) {  // список пуст
     head_ = newNode;
     tail_ = newNode;
   } else {
@@ -43,11 +44,11 @@ OperationRes L::pushFront(const std::string& value) {
   return OperationRes::SUCCESS;
 }
 
-OperationRes L::pushBack(const std::string& value) {
-  LNode* newNode = new LNode;
+auto L::pushBack(const std::string& value) -> OperationRes {
+  auto* newNode = new LNode;
   newNode->value = value;
 
-  if (!head_) {  // список пуст
+  if (head_ == nullptr) {  // список пуст
     head_ = newNode;
     tail_ = newNode;
   } else {
@@ -60,15 +61,17 @@ OperationRes L::pushBack(const std::string& value) {
   return OperationRes::SUCCESS;
 }
 
-OperationRes L::pushAfter(LNode* node, const std::string& value) {
-  if (!node) return OperationRes::ERROR;
+auto L::pushAfter(LNode* node, const std::string& value) -> OperationRes {
+  if (node == nullptr) {
+    return OperationRes::ERROR;
+  }
 
-  LNode* newNode = new LNode;
+  auto* newNode = new LNode;
   newNode->value = value;
   newNode->next = node->next;
   newNode->prev = node;
 
-  if (node->next) {
+  if (node->next != nullptr) {
     node->next->prev = newNode;
   }
   node->next = newNode;
@@ -81,20 +84,22 @@ OperationRes L::pushAfter(LNode* node, const std::string& value) {
   return OperationRes::SUCCESS;
 }
 
-OperationRes L::pushBefore(LNode* node, const std::string& value) {
-  if (!node) return OperationRes::ERROR;
+auto L::pushBefore(LNode* node, const std::string& value) -> OperationRes {
+  if (node == nullptr) {
+    return OperationRes::ERROR;
+  }
 
   // случай добавления перед головой
   if (node == head_) {
     return pushFront(value);
   }
 
-  LNode* newNode = new LNode;
+  auto* newNode = new LNode;
   newNode->value = value;
   newNode->next = node;
   newNode->prev = node->prev;
 
-  if (node->prev) {
+  if (node->prev != nullptr) {
     node->prev->next = newNode;
   }
   node->prev = newNode;
@@ -103,13 +108,15 @@ OperationRes L::pushBefore(LNode* node, const std::string& value) {
   return OperationRes::SUCCESS;
 }
 
-OperationRes L::delFront() {
-  if (!head_) return OperationRes::EMPTY;
+auto L::delFront() -> OperationRes {
+  if (head_ == nullptr) {
+    return OperationRes::EMPTY;
+  }
 
   LNode* temp = head_;
   head_ = head_->next;
 
-  if (head_) {
+  if (head_ != nullptr) {
     head_->prev = nullptr;
   } else {
     tail_ = nullptr;  // список стал пустым
@@ -119,13 +126,15 @@ OperationRes L::delFront() {
   return OperationRes::SUCCESS;
 }
 
-OperationRes L::delBack() {
-  if (!head_) return OperationRes::EMPTY;
+auto L::delBack() -> OperationRes {
+  if (head_ == nullptr) {
+    return OperationRes::EMPTY;
+  }
 
   LNode* temp = tail_;
   tail_ = tail_->prev;
 
-  if (tail_) {
+  if (tail_ != nullptr) {
     tail_->next = nullptr;
   } else {
     head_ = nullptr;
@@ -135,13 +144,15 @@ OperationRes L::delBack() {
   return OperationRes::SUCCESS;
 }
 
-OperationRes L::delAfter(LNode* node) {
-  if (!node || !node->next) return OperationRes::ERROR;
+auto L::delAfter(LNode* node) -> OperationRes {
+  if ((node == nullptr) || (node->next == nullptr)) {
+    return OperationRes::ERROR;
+  }
 
   LNode* toDelete = node->next;
   node->next = toDelete->next;
 
-  if (toDelete->next) {
+  if (toDelete->next != nullptr) {
     toDelete->next->prev = node;
   } else {
     tail_ = node;
@@ -152,8 +163,10 @@ OperationRes L::delAfter(LNode* node) {
   return OperationRes::SUCCESS;
 }
 
-OperationRes L::delBefore(LNode* node) {
-  if (!node || !node->prev) return OperationRes::ERROR;
+auto L::delBefore(LNode* node) -> OperationRes {
+  if ((node == nullptr) || (node->prev == nullptr)) {
+    return OperationRes::ERROR;
+  }
 
   if (node->prev == head_) {
     return delFront();
@@ -168,86 +181,96 @@ OperationRes L::delBefore(LNode* node) {
   return OperationRes::SUCCESS;
 }
 
-OperationRes L::delByValue(const std::string& value) {
-  if (!head_) return OperationRes::EMPTY;
+auto L::delByValue(const std::string& value) -> OperationRes {
+  if (head_ == nullptr) {
+    return OperationRes::EMPTY;
+  }
 
   // ищем узел с значением
   LNode* current = head_;
-  while (current && current->value != value) {
+  while ((current != nullptr) && current->value != value) {
     current = current->next;
   }
 
-  if (!current) return OperationRes::NOT_FOUND;
+  if (current == nullptr) {
+    return OperationRes::NOT_FOUND;
+  }
 
   // удаляем найденный узел
   if (current == head_) {
     return delFront();
-  } else if (current == tail_) {
-    return delBack();
-  } else {
-    current->prev->next = current->next;
-    current->next->prev = current->prev;
-    delete current;
-    size_--;
-    return OperationRes::SUCCESS;
   }
+  if (current == tail_) {
+    return delBack();
+  }
+  current->prev->next = current->next;
+  current->next->prev = current->prev;
+  delete current;
+  size_--;
+  return OperationRes::SUCCESS;
 }
 
-LNode* L::find(const std::string& value) const {
+auto L::find(const std::string& value) const -> LNode* {
   LNode* current = head_;
-  while (current) {
-    if (current->value == value) return current;
+  while (current != nullptr) {
+    if (current->value == value) {
+      return current;
+    }
     current = current->next;
   }
   return nullptr;
 }
 
-LNode* L::getAt(size_t index) const {
+auto L::getAt(size_t index) const -> LNode* {
   LNode* current = head_;
-  for (size_t i = 0; current && i < index; ++i) {
+  for (size_t i = 0; (current != nullptr) && i < index; ++i) {
     current = current->next;
   }
   return current;
 }
 
-bool L::empty() const { return !head_; }
+auto L::empty() const -> bool { return head_ == nullptr; }
 
 // принт в прямом порядке
 void L::printForward() const {
   std::cout << "Двусвязный список " << name_ << " (размер: " << size_
-            << ") в прямом порядке:" << std::endl;
+            << ") в прямом порядке:" << '\n';
 
-  if (!head_) {
-    std::cout << "Список пуст." << std::endl;
+  if (head_ == nullptr) {
+    std::cout << "Список пуст." << '\n';
     return;
   }
 
   LNode* current = head_;
   std::cout << "NULL <-> ";
-  while (current) {
+  while (current != nullptr) {
     std::cout << current->value;
-    if (current->next) std::cout << " <-> ";
+    if (current->next != nullptr) {
+      std::cout << " <-> ";
+    }
     current = current->next;
   }
-  std::cout << " <-> NULL" << std::endl;
+  std::cout << " <-> NULL" << '\n';
 }
 
 // принт в обратном порядке
 void L::printBackward() const {
   std::cout << "Двусвязный список " << name_ << " (размер: " << size_
-            << ") в обратном порядке:" << std::endl;
+            << ") в обратном порядке:" << '\n';
 
-  if (!head_) {
-    std::cout << "Список пуст." << std::endl;
+  if (head_ == nullptr) {
+    std::cout << "Список пуст." << '\n';
     return;
   }
 
   LNode* current = tail_;
   std::cout << "NULL <-> ";
-  while (current) {
+  while (current != nullptr) {
     std::cout << current->value;
-    if (current->prev) std::cout << " <-> ";
+    if (current->prev != nullptr) {
+      std::cout << " <-> ";
+    }
     current = current->prev;
   }
-  std::cout << " <-> NULL" << std::endl;
+  std::cout << " <-> NULL" << '\n';
 }

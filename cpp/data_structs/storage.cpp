@@ -1,10 +1,12 @@
 #include "storage.h"
 
-NamedStructure* storageFind(Storage* storage, const std::string& name) {
-  if (!storage) return nullptr;
+auto storageFind(Storage* storage, const std::string& name) -> NamedStructure* {
+  if (storage == nullptr) {
+    return nullptr;
+  }
 
   NamedStructure* current = storage->structures;
-  while (current) {
+  while (current != nullptr) {
     if (current->name == name) {
       return current;
     }
@@ -13,16 +15,18 @@ NamedStructure* storageFind(Storage* storage, const std::string& name) {
   return nullptr;
 }
 
-OperationRes storageAdd(Storage* storage, const std::string& name,
-                        StructType type, void* structure) {
-  if (!storage) return OperationRes::ERROR;
-
-  // уникальность имени
-  if (storageFind(storage, name)) {
+auto storageAdd(Storage* storage, const std::string& name, StructType type,
+                void* structure) -> OperationRes {
+  if (storage == nullptr) {
     return OperationRes::ERROR;
   }
 
-  NamedStructure* newNode = new NamedStructure(name, type, structure);
+  // уникальность имени
+  if (storageFind(storage, name) != nullptr) {
+    return OperationRes::ERROR;
+  }
+
+  auto* newNode = new NamedStructure(name, type, structure);
 
   // в начало списка
   newNode->next = storage->structures;
@@ -32,15 +36,17 @@ OperationRes storageAdd(Storage* storage, const std::string& name,
   return OperationRes::SUCCESS;
 }
 
-OperationRes storageRemove(Storage* storage, const std::string& name) {
-  if (!storage || !storage->structures) return OperationRes::NOT_FOUND;
+auto storageRemove(Storage* storage, const std::string& name) -> OperationRes {
+  if ((storage == nullptr) || (storage->structures == nullptr)) {
+    return OperationRes::NOT_FOUND;
+  }
 
   NamedStructure* current = storage->structures;
   NamedStructure* prev = nullptr;
 
-  while (current) {
+  while (current != nullptr) {
     if (current->name == name) {
-      if (prev) {
+      if (prev != nullptr) {
         prev->next = current->next;
       } else {
         storage->structures = current->next;
@@ -84,10 +90,12 @@ OperationRes storageRemove(Storage* storage, const std::string& name) {
 }
 
 void storageCleanup(Storage* storage) {
-  if (!storage) return;
+  if (storage == nullptr) {
+    return;
+  }
 
   NamedStructure* current = storage->structures;
-  while (current) {
+  while (current != nullptr) {
     NamedStructure* next = current->next;
 
     // Удаляем саму структуру данных

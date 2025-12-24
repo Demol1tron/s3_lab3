@@ -13,25 +13,26 @@
 // PRINT <имя_структуры>
 
 #include <iostream>
+#include <utility>
 
 #include "structures.h"
 
-F::F(const std::string& name) : name_(name) {}
+F::F(std::string name) : name_(std::move(name)) {}
 
 F::~F() {
   FNode* current = head_;
-  while (current) {
+  while (current != nullptr) {
     FNode* next = current->next;
     delete current;
     current = next;
   }
 }
 
-OperationRes F::pushFront(const std::string& value) {
-  FNode* newNode = new FNode;
+auto F::pushFront(const std::string& value) -> OperationRes {
+  auto* newNode = new FNode;
   newNode->value = value;
 
-  if (!head_) {  // список пуст
+  if (head_ == nullptr) {  // список пуст
     head_ = newNode;
     tail_ = newNode;
   } else {
@@ -43,11 +44,11 @@ OperationRes F::pushFront(const std::string& value) {
   return OperationRes::SUCCESS;
 }
 
-OperationRes F::pushBack(const std::string& value) {
-  FNode* newNode = new FNode;
+auto F::pushBack(const std::string& value) -> OperationRes {
+  auto* newNode = new FNode;
   newNode->value = value;
 
-  if (!head_) {
+  if (head_ == nullptr) {
     head_ = newNode;
     tail_ = newNode;
   } else {
@@ -59,10 +60,12 @@ OperationRes F::pushBack(const std::string& value) {
   return OperationRes::SUCCESS;
 }
 
-OperationRes F::pushAfter(FNode* node, const std::string& value) {
-  if (!node) return OperationRes::ERROR;
+auto F::pushAfter(FNode* node, const std::string& value) -> OperationRes {
+  if (node == nullptr) {
+    return OperationRes::ERROR;
+  }
 
-  FNode* newNode = new FNode;
+  auto* newNode = new FNode;
   newNode->value = value;
   newNode->next = node->next;
   node->next = newNode;
@@ -75,8 +78,10 @@ OperationRes F::pushAfter(FNode* node, const std::string& value) {
   return OperationRes::SUCCESS;
 }
 
-OperationRes F::pushBefore(FNode* node, const std::string& value) {
-  if (!node) return OperationRes::ERROR;
+auto F::pushBefore(FNode* node, const std::string& value) -> OperationRes {
+  if (node == nullptr) {
+    return OperationRes::ERROR;
+  }
 
   // случай перед головой
   if (node == head_) {
@@ -85,13 +90,15 @@ OperationRes F::pushBefore(FNode* node, const std::string& value) {
 
   // ищем предыдущий узел
   FNode* prev = head_;
-  while (prev && prev->next != node) {
+  while ((prev != nullptr) && prev->next != node) {
     prev = prev->next;
   }
 
-  if (!prev) return OperationRes::NOT_FOUND;
+  if (prev == nullptr) {
+    return OperationRes::NOT_FOUND;
+  }
 
-  FNode* newNode = new FNode;
+  auto* newNode = new FNode;
   newNode->value = value;
   newNode->next = node;
   prev->next = newNode;
@@ -100,8 +107,10 @@ OperationRes F::pushBefore(FNode* node, const std::string& value) {
   return OperationRes::SUCCESS;
 }
 
-OperationRes F::delFront() {
-  if (!head_) return OperationRes::EMPTY;
+auto F::delFront() -> OperationRes {
+  if (head_ == nullptr) {
+    return OperationRes::EMPTY;
+  }
 
   FNode* temp = head_;
   head_ = head_->next;
@@ -115,8 +124,10 @@ OperationRes F::delFront() {
   return OperationRes::SUCCESS;
 }
 
-OperationRes F::delBack() {
-  if (!head_) return OperationRes::EMPTY;
+auto F::delBack() -> OperationRes {
+  if (head_ == nullptr) {
+    return OperationRes::EMPTY;
+  }
 
   // в списке один элемент
   if (head_ == tail_) {
@@ -139,8 +150,10 @@ OperationRes F::delBack() {
   return OperationRes::SUCCESS;
 }
 
-OperationRes F::delAfter(FNode* node) {
-  if (!node || !node->next) return OperationRes::ERROR;
+auto F::delAfter(FNode* node) -> OperationRes {
+  if ((node == nullptr) || (node->next == nullptr)) {
+    return OperationRes::ERROR;
+  }
 
   FNode* temp = node->next;
   node->next = temp->next;
@@ -155,9 +168,13 @@ OperationRes F::delAfter(FNode* node) {
   return OperationRes::SUCCESS;
 }
 
-OperationRes F::delBefore(FNode* node) {
-  if (!node || !head_) return OperationRes::ERROR;
-  if (node == head_) return OperationRes::ERROR;
+auto F::delBefore(FNode* node) -> OperationRes {
+  if ((node == nullptr) || (head_ == nullptr)) {
+    return OperationRes::ERROR;
+  }
+  if (node == head_) {
+    return OperationRes::ERROR;
+  }
 
   // случай удаления перед вторым элементом ( удаляем голову)
   if (head_->next == node) {
@@ -166,11 +183,14 @@ OperationRes F::delBefore(FNode* node) {
 
   // ищем пред-предыдущий узел
   FNode* prevPrev = head_;
-  while (prevPrev && prevPrev->next && prevPrev->next->next != node) {
+  while ((prevPrev != nullptr) && (prevPrev->next != nullptr) &&
+         prevPrev->next->next != node) {
     prevPrev = prevPrev->next;
   }
 
-  if (!prevPrev || !prevPrev->next) return OperationRes::NOT_FOUND;
+  if ((prevPrev == nullptr) || (prevPrev->next == nullptr)) {
+    return OperationRes::NOT_FOUND;
+  }
 
   FNode* toDelete = prevPrev->next;
   prevPrev->next = node;  // связываем через узел
@@ -180,8 +200,10 @@ OperationRes F::delBefore(FNode* node) {
 }
 
 // удалить по значению (первое вхождение)
-OperationRes F::delByValue(const std::string& value) {
-  if (!head_) return OperationRes::EMPTY;
+auto F::delByValue(const std::string& value) -> OperationRes {
+  if (head_ == nullptr) {
+    return OperationRes::EMPTY;
+  }
 
   // если значение в голове
   if (head_->value == value) {
@@ -190,11 +212,13 @@ OperationRes F::delByValue(const std::string& value) {
 
   // ищем узел со значением и его предыдущий
   FNode* prev = head_;
-  while (prev->next && prev->next->value != value) {
+  while ((prev->next != nullptr) && prev->next->value != value) {
     prev = prev->next;
   }
 
-  if (!prev->next) return OperationRes::NOT_FOUND;
+  if (prev->next == nullptr) {
+    return OperationRes::NOT_FOUND;
+  }
 
   FNode* toDelete = prev->next;
   prev->next = toDelete->next;
@@ -209,31 +233,35 @@ OperationRes F::delByValue(const std::string& value) {
 }
 
 // поиск узла по значению
-FNode* F::find(const std::string& value) const {
+auto F::find(const std::string& value) const -> FNode* {
   FNode* current = head_;
-  while (current) {
-    if (current->value == value) return current;
+  while (current != nullptr) {
+    if (current->value == value) {
+      return current;
+    }
     current = current->next;
   }
   return nullptr;
 }
 
-bool F::empty() const { return !head_; }
+auto F::empty() const -> bool { return head_ == nullptr; }
 
 void F::print() const {
   std::cout << "Односвязный список " << name_ << " (размер: " << size_
-            << "):" << std::endl;
+            << "):" << '\n';
 
-  if (!head_) {
-    std::cout << "Список пуст." << std::endl;
+  if (head_ == nullptr) {
+    std::cout << "Список пуст." << '\n';
     return;
   }
 
   FNode* current = head_;
-  while (current) {
+  while (current != nullptr) {
     std::cout << current->value;
-    if (current->next) std::cout << " -> ";
+    if (current->next != nullptr) {
+      std::cout << " -> ";
+    }
     current = current->next;
   }
-  std::cout << " -> NULL" << std::endl;
+  std::cout << " -> NULL" << '\n';
 }

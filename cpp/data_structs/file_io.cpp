@@ -6,16 +6,21 @@
 #include <sstream>
 #include <vector>
 
-OperationRes saveToFile(const Storage* storage, const std::string& filename) {
-  if (!storage) return OperationRes::ERROR;
+auto saveToFile(const Storage* storage, const std::string& filename)
+    -> OperationRes {
+  if (storage == nullptr) {
+    return OperationRes::ERROR;
+  }
 
   std::ofstream file(filename);
-  if (!file.is_open()) return OperationRes::ERROR;
+  if (!file.is_open()) {
+    return OperationRes::ERROR;
+  }
 
-  file << "#ДБ\n#ТИП/ИМЯ/РАЗМЕР/ДАННЫЕ" << std::endl;
+  file << "#ДБ\n#ТИП/ИМЯ/РАЗМЕР/ДАННЫЕ" << '\n';
 
   NamedStructure* current = storage->structures;
-  while (current) {
+  while (current != nullptr) {
     file << static_cast<int>(current->type) << " " << current->name << " ";
 
     switch (current->type) {
@@ -33,7 +38,7 @@ OperationRes saveToFile(const Storage* storage, const std::string& filename) {
         F* list = static_cast<F*>(current->structure);
         file << list->getLength();
         FNode* node = list->getHead();
-        while (node) {
+        while (node != nullptr) {
           file << " \"" << node->value << "\"";
           node = node->next;
         }
@@ -43,7 +48,7 @@ OperationRes saveToFile(const Storage* storage, const std::string& filename) {
         L* list = static_cast<L*>(current->structure);
         file << list->getLength();
         LNode* node = list->getHead();
-        while (node) {
+        while (node != nullptr) {
           file << " \"" << node->value << "\"";
           node = node->next;
         }
@@ -54,7 +59,7 @@ OperationRes saveToFile(const Storage* storage, const std::string& filename) {
         file << stack->getSize();
         // стек как список (от вершины к низу)
         SNode* node = stack->getTop();
-        while (node) {
+        while (node != nullptr) {
           file << " \"" << node->value << "\"";
           node = node->next;
         }
@@ -65,7 +70,7 @@ OperationRes saveToFile(const Storage* storage, const std::string& filename) {
         file << queue->getSize();
         // очередь как список (от начала к концу)
         QNode* node = queue->getHead();
-        while (node) {
+        while (node != nullptr) {
           file << " \"" << node->value << "\"";
           node = node->next;
         }
@@ -76,15 +81,19 @@ OperationRes saveToFile(const Storage* storage, const std::string& filename) {
         file << tree->getSize();
         // дерево в порядке BFS для восстановления структуры
         TNode* root = tree->getRoot();
-        if (root) {
+        if (root != nullptr) {
           std::queue<TNode*> q;
           q.push(root);
           while (!q.empty()) {
             TNode* node = q.front();
             q.pop();
             file << " \"" << node->value << "\"";
-            if (node->left) q.push(node->left);
-            if (node->right) q.push(node->right);
+            if (node->left != nullptr) {
+              q.push(node->left);
+            }
+            if (node->right != nullptr) {
+              q.push(node->right);
+            }
           }
         }
         break;
@@ -96,7 +105,7 @@ OperationRes saveToFile(const Storage* storage, const std::string& filename) {
         size_t cap = set->getCapacity();
         for (size_t i = 0; i < cap; ++i) {
           SetNode* node = set->getBucket(i);
-          while (node) {
+          while (node != nullptr) {
             file << " \"" << node->value << "\"";  // значение в кавычках
             node = node->next;
           }
@@ -107,7 +116,7 @@ OperationRes saveToFile(const Storage* storage, const std::string& filename) {
       default:
         break;
     }
-    file << std::endl;
+    file << '\n';
     current = current->next;
   }
 
@@ -115,34 +124,43 @@ OperationRes saveToFile(const Storage* storage, const std::string& filename) {
   return OperationRes::SUCCESS;
 }
 
-OperationRes loadFromFile(Storage* storage, const std::string& filename) {
-  if (!storage) return OperationRes::ERROR;
+auto loadFromFile(Storage* storage, const std::string& filename)
+    -> OperationRes {
+  if (storage == nullptr) {
+    return OperationRes::ERROR;
+  }
 
   std::ifstream file(filename);
-  if (!file.is_open()) return OperationRes::ERROR;
+  if (!file.is_open()) {
+    return OperationRes::ERROR;
+  }
 
   std::string line;
   while (std::getline(file, line)) {
     // пропускаем # и пустые строки
-    if (line.empty() || line[0] == '#') continue;
+    if (line.empty() || line[0] == '#') {
+      continue;
+    }
 
     std::istringstream iss(line);
     int typeInt;
     std::string name;
     size_t size;
 
-    if (!(iss >> typeInt >> name >> size))
+    if (!(iss >> typeInt >> name >> size)) {
       continue;  // пропускаем некорректные строки
+    }
 
-    StructType type = static_cast<StructType>(typeInt);
+    auto type = static_cast<StructType>(typeInt);
     std::vector<std::string> values;
     std::string value;
 
     // читаем значения
     while (iss >> value) {
       // убираем кавычки
-      if (value.size() >= 2 && value.front() == '"' && value.back() == '"')
+      if (value.size() >= 2 && value.front() == '"' && value.back() == '"') {
         value = value.substr(1, value.length() - 2);
+      }
 
       values.push_back(value);
     }
@@ -151,21 +169,27 @@ OperationRes loadFromFile(Storage* storage, const std::string& filename) {
     switch (type) {
       case StructType::ARRAY: {
         M* arr = new M(name);
-        for (const auto& val : values) arr->pushBack(val);
+        for (const auto& val : values) {
+          arr->pushBack(val);
+        }
 
         structure = arr;
         break;
       }
       case StructType::SINGLY_LIST: {
         F* list = new F(name);
-        for (const auto& val : values) list->pushBack(val);
+        for (const auto& val : values) {
+          list->pushBack(val);
+        }
 
         structure = list;
         break;
       }
       case StructType::DOUBLY_LIST: {
         L* list = new L(name);
-        for (const auto& val : values) list->pushBack(val);
+        for (const auto& val : values) {
+          list->pushBack(val);
+        }
 
         structure = list;
         break;
@@ -181,14 +205,18 @@ OperationRes loadFromFile(Storage* storage, const std::string& filename) {
       }
       case StructType::QUEUE: {
         Q* queue = new Q(name);
-        for (const auto& val : values) queue->enqueue(val);
+        for (const auto& val : values) {
+          queue->enqueue(val);
+        }
 
         structure = queue;
         break;
       }
       case StructType::TREE: {
         T* tree = new T(name);
-        for (const auto& val : values) tree->insert(val);
+        for (const auto& val : values) {
+          tree->insert(val);
+        }
 
         structure = tree;
         break;
@@ -206,7 +234,9 @@ OperationRes loadFromFile(Storage* storage, const std::string& filename) {
         continue;
     }
 
-    if (structure) storageAdd(storage, name, type, structure);
+    if (structure != nullptr) {
+      storageAdd(storage, name, type, structure);
+    }
   }
 
   file.close();

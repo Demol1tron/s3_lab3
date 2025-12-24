@@ -7,27 +7,30 @@
 #include <iostream>
 #include <queue>
 #include <string>
+#include <utility>
 
 #include "structures.h"
 
-T::T(const std::string& name) : name_(name) {}
+T::T(std::string name) : name_(std::move(name)) {}
 
 T::~T() { deleteSubtree(root_); }
 
 // приват рекурсивный метод для удаления
 void T::deleteSubtree(TNode* node) {
-  if (!node) return;
+  if (node == nullptr) {
+    return;
+  }
   deleteSubtree(node->left);
   deleteSubtree(node->right);
   delete node;
 }
 
 // вставка (level-order)
-OperationRes T::insert(const std::string& value) {
-  TNode* newNode = new TNode;
+auto T::insert(const std::string& value) -> OperationRes {
+  auto* newNode = new TNode;
   newNode->value = value;
 
-  if (!root_) {  // дерево пустое
+  if (root_ == nullptr) {  // дерево пустое
     root_ = newNode;
     size_++;
     return OperationRes::SUCCESS;
@@ -41,48 +44,58 @@ OperationRes T::insert(const std::string& value) {
     TNode* current = q.front();
     q.pop();
 
-    if (!current->left) {
+    if (current->left == nullptr) {
       current->left = newNode;
       size_++;
       return OperationRes::SUCCESS;
-    } else if (!current->right) {
+    }
+    if (current->right == nullptr) {
       current->right = newNode;
       size_++;
       return OperationRes::SUCCESS;
-    } else {
-      // у узла уже есть оба ребенка
-      q.push(current->left);
-      q.push(current->right);
-    }
+    }  // у узла уже есть оба ребенка
+    q.push(current->left);
+    q.push(current->right);
   }
   delete newNode;
   return OperationRes::ERROR;
 }
 
 // приват рекурсивный поиск
-bool T::searchRecursive(const TNode* node, const std::string& value) const {
-  if (!node) return false;
-  if (node->value == value) return true;
+auto T::searchRecursive(const TNode* node, const std::string& value) const
+    -> bool {
+  if (node == nullptr) {
+    return false;
+  }
+  if (node->value == value) {
+    return true;
+  }
   return searchRecursive(node->left, value) ||
          searchRecursive(node->right, value);
 }
 
 // публ метод поиска
-OperationRes T::search(const std::string& value) const {
-  if (!root_) return OperationRes::NOT_FOUND;
+auto T::search(const std::string& value) const -> OperationRes {
+  if (root_ == nullptr) {
+    return OperationRes::NOT_FOUND;
+  }
   return searchRecursive(root_, value) ? OperationRes::SUCCESS
                                        : OperationRes::NOT_FOUND;
 }
 
 // приват проверка на полноту
-bool T::isFullBinaryTree(const TNode* node) const {
-  if (!node) return true;
+auto T::isFullBinaryTree(const TNode* node) const -> bool {
+  if (node == nullptr) {
+    return true;
+  }
 
   // лист
-  if (!node->left && !node->right) return true;
+  if ((node->left == nullptr) && (node->right == nullptr)) {
+    return true;
+  }
 
   // оба ребенка
-  if (node->left && node->right) {
+  if ((node->left != nullptr) && (node->right != nullptr)) {
     return isFullBinaryTree(node->left) && isFullBinaryTree(node->right);
   }
 
@@ -91,23 +104,25 @@ bool T::isFullBinaryTree(const TNode* node) const {
 }
 
 // публ метод проверки на полноту
-bool T::isFull() const { return isFullBinaryTree(root_); }
+auto T::isFull() const -> bool { return isFullBinaryTree(root_); }
 
 // приват метод для визуализации
 void T::printTreeVisual(const TNode* node, const std::string& prefix,
                         bool isLeft) const {
-  if (!node) return;
+  if (node == nullptr) {
+    return;
+  }
 
   std::cout << prefix;
   std::cout << (isLeft ? "├── " : "└── ");
-  std::cout << node->value << std::endl;
+  std::cout << node->value << '\n';
 
-  if (node->left || node->right) {
+  if ((node->left != nullptr) || (node->right != nullptr)) {
     std::string newPrefix = prefix + (isLeft ? "│   " : "    ");
-    if (node->left) {
+    if (node->left != nullptr) {
       printTreeVisual(node->left, newPrefix, true);
     }
-    if (node->right) {
+    if (node->right != nullptr) {
       printTreeVisual(node->right, newPrefix, false);
     }
   }
@@ -115,7 +130,9 @@ void T::printTreeVisual(const TNode* node, const std::string& prefix,
 
 // приват Pre-order
 void T::printPreOrder(const TNode* node) const {
-  if (!node) return;
+  if (node == nullptr) {
+    return;
+  }
   std::cout << node->value << " ";
   printPreOrder(node->left);
   printPreOrder(node->right);
@@ -123,7 +140,9 @@ void T::printPreOrder(const TNode* node) const {
 
 // приват In-order
 void T::printInOrder(const TNode* node) const {
-  if (!node) return;
+  if (node == nullptr) {
+    return;
+  }
   printInOrder(node->left);
   std::cout << node->value << " ";
   printInOrder(node->right);
@@ -131,7 +150,9 @@ void T::printInOrder(const TNode* node) const {
 
 // приват Post-order
 void T::printPostOrder(const TNode* node) const {
-  if (!node) return;
+  if (node == nullptr) {
+    return;
+  }
   printPostOrder(node->left);
   printPostOrder(node->right);
   std::cout << node->value << " ";
@@ -139,7 +160,9 @@ void T::printPostOrder(const TNode* node) const {
 
 // публ метод BFS (Level-order)
 void T::printBFS() const {
-  if (!root_) return;
+  if (root_ == nullptr) {
+    return;
+  }
   std::queue<TNode*> q;
   q.push(root_);
 
@@ -148,39 +171,43 @@ void T::printBFS() const {
     TNode* current = q.front();
     q.pop();
     std::cout << current->value << " ";
-    if (current->left) q.push(current->left);
-    if (current->right) q.push(current->right);
+    if (current->left != nullptr) {
+      q.push(current->left);
+    }
+    if (current->right != nullptr) {
+      q.push(current->right);
+    }
   }
-  std::cout << std::endl;
+  std::cout << '\n';
 }
 
-bool T::empty() const { return !root_; }
+auto T::empty() const -> bool { return root_ == nullptr; }
 
 void T::print() const {
   std::cout << "=== Дерево '" << name_ << "' (размер: " << size_
-            << ") ===" << std::endl;
-  std::cout << "Full Binary Tree: " << (isFull() ? "ДА" : "НЕТ") << std::endl;
+            << ") ===" << '\n';
+  std::cout << "Full Binary Tree: " << (isFull() ? "ДА" : "НЕТ") << '\n';
 
-  if (!root_) {
-    std::cout << "Дерево пусто." << std::endl;
+  if (root_ == nullptr) {
+    std::cout << "Дерево пусто." << '\n';
     return;
   }
 
-  std::cout << std::endl << "Визуал:" << std::endl;
+  std::cout << '\n' << "Визуал:" << '\n';
   printTreeVisual(root_, "", false);
 
-  std::cout << std::endl << "Способами обхода:" << std::endl;
+  std::cout << '\n' << "Способами обхода:" << '\n';
   std::cout << "Pre-order: ";
   printPreOrder(root_);
-  std::cout << std::endl;
+  std::cout << '\n';
 
   std::cout << "In-order: ";
   printInOrder(root_);
-  std::cout << std::endl;
+  std::cout << '\n';
 
   std::cout << "Post-order: ";
   printPostOrder(root_);
-  std::cout << std::endl;
+  std::cout << '\n';
 
   printBFS();
 }

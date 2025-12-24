@@ -7,21 +7,21 @@
 #include "storage.h"
 
 void printUsage() {
-  std::cout << "Использование:" << std::endl;
-  std::cout << "  ./dbms --file <имя_файла> --query '<команда>'" << std::endl;
-  std::cout << std::endl;
-  std::cout << "Уникальные команды:" << std::endl;
-  std::cout << "  COUNT" << std::endl;
-  std::cout << "  EXISTS <имя_структуры>" << std::endl;
-  std::cout << "  DELETE <имя_структуры>" << std::endl;
-  std::cout << std::endl;
-  std::cout << "Доступные структуры:" << std::endl;
+  std::cout << "Использование:" << '\n';
+  std::cout << "  ./dbms --file <имя_файла> --query '<команда>'" << '\n';
+  std::cout << '\n';
+  std::cout << "Уникальные команды:" << '\n';
+  std::cout << "  COUNT" << '\n';
+  std::cout << "  EXISTS <имя_структуры>" << '\n';
+  std::cout << "  DELETE <имя_структуры>" << '\n';
+  std::cout << '\n';
+  std::cout << "Доступные структуры:" << '\n';
   std::cout << "  M - Массив, F - Односвязный список, L - Двусвязный список"
-            << std::endl;
-  std::cout << "  S - Стек, Q - Очередь, T - Дерево" << std::endl;
+            << '\n';
+  std::cout << "  S - Стек, Q - Очередь, T - Дерево" << '\n';
 }
 
-int main(int argc, char* argv[]) {
+auto main(int argc, char* argv[]) -> int {
   Storage storage;
   std::string filename;
   std::string query;
@@ -29,28 +29,29 @@ int main(int argc, char* argv[]) {
   // парсинг аргументов в терминале
   for (int i = 1; i < argc; i++) {
     std::string arg = argv[i];
-    if (arg == "--file" && i + 1 < argc)
+    if (arg == "--file" && i + 1 < argc) {
       filename = argv[++i];
 
-    else if (arg == "--query" && i + 1 < argc)
+    } else if (arg == "--query" && i + 1 < argc) {
       query = argv[++i];
-    else if (arg == "--help" || arg == "-h") {
+    } else if (arg == "--help" || arg == "-h") {
       printUsage();
       return 0;
     }
   }
 
   if (filename.empty()) {
-    std::cout << "ОШИБКА: не указан файл данных" << std::endl;
+    std::cout << "ОШИБКА: не указан файл данных" << '\n';
     printUsage();
     return -1;
   }
 
   // загрузка из файла
-  if (loadFromFile(&storage, filename) != OperationRes::SUCCESS)
-    std::cout << "СОЗДАН НОВЫЙ ФАЙЛ ДАННЫХ: " << filename << std::endl;
-  else
-    std::cout << "ДАННЫЕ ЗАГРУЖЕНЫ ИЗ ФАЙЛА: " << filename << std::endl;
+  if (loadFromFile(&storage, filename) != OperationRes::SUCCESS) {
+    std::cout << "СОЗДАН НОВЫЙ ФАЙЛ ДАННЫХ: " << filename << '\n';
+  } else {
+    std::cout << "ДАННЫЕ ЗАГРУЖЕНЫ ИЗ ФАЙЛА: " << filename << '\n';
+  }
 
   if (!query.empty()) {
     ParsedCommand cmd = parseQuery(query);
@@ -60,26 +61,26 @@ int main(int argc, char* argv[]) {
     switch (res) {
       case OperationRes::SUCCESS:
         // if (!result.empty())
-        std::cout << result << std::endl;
+        std::cout << result << '\n';
         break;
       case OperationRes::ERROR:
-        std::cout << "ОШИБКА" << std::endl;
+        std::cout << "ОШИБКА" << '\n';
         break;
       case OperationRes::NOT_FOUND:
-        std::cout << "НЕ_НАЙДЕНО" << std::endl;
+        std::cout << "НЕ_НАЙДЕНО" << '\n';
         break;
       case OperationRes::EMPTY:
-        std::cout << "ПУСТО" << std::endl;
+        std::cout << "ПУСТО" << '\n';
         break;
       case OperationRes::INDEX_OUT:
-        std::cout << "ИНДЕКС_ВЫШЕЛ_ЗА_ПРЕДЕЛЫ" << std::endl;
+        std::cout << "ИНДЕКС_ВЫШЕЛ_ЗА_ПРЕДЕЛЫ" << '\n';
         break;
     }
 
     saveToFile(&storage, filename);
-    std::cout << "ДАННЫЕ ЗАГРУЖЕНЫ В ФАЙЛ: " << filename << std::endl;
+    std::cout << "ДАННЫЕ ЗАГРУЖЕНЫ В ФАЙЛ: " << filename << '\n';
   } else {
-    std::cout << "ОШИБКА: неправильно указана команда" << std::endl;
+    std::cout << "ОШИБКА: неправильно указана команда" << '\n';
     printUsage();
     return -1;
   }

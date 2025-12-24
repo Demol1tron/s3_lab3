@@ -4,22 +4,23 @@
 // PRINT <имя>
 
 #include <iostream>
+#include <utility>
 
 #include "structures.h"
 
-S::S(const std::string& name) : name_(name) {}
+S::S(std::string name) : name_(std::move(name)) {}
 
 S::~S() {
   SNode* current = top_;
-  while (current) {
+  while (current != nullptr) {
     SNode* next = current->next;
     delete current;
     current = next;
   }
 }
 
-OperationRes S::push(const std::string& value) {
-  SNode* newNode = new SNode;
+auto S::push(const std::string& value) -> OperationRes {
+  auto* newNode = new SNode;
   newNode->value = value;
   newNode->next = top_;
   top_ = newNode;
@@ -28,8 +29,10 @@ OperationRes S::push(const std::string& value) {
 }
 
 // удалить и запомнить элемент
-OperationRes S::pop(std::string& result) {
-  if (!top_) return OperationRes::EMPTY;
+auto S::pop(std::string& result) -> OperationRes {
+  if (top_ == nullptr) {
+    return OperationRes::EMPTY;
+  }
 
   SNode* temp = top_;
   result = temp->value;  // сохраняем значение
@@ -40,17 +43,17 @@ OperationRes S::pop(std::string& result) {
 }
 
 void S::print() const {
-  std::cout << "Стек " << name_ << " (размер: " << size_ << "):" << std::endl;
-  if (!top_) {
-    std::cout << "Стек пуст." << std::endl;
+  std::cout << "Стек " << name_ << " (размер: " << size_ << "):" << '\n';
+  if (top_ == nullptr) {
+    std::cout << "Стек пуст." << '\n';
     return;
   }
 
-  std::cout << "ВЕРХ" << std::endl;
+  std::cout << "ВЕРХ" << '\n';
   SNode* current = top_;
-  while (current) {
-    std::cout << "| " << current->value << " |" << std::endl;
+  while (current != nullptr) {
+    std::cout << "| " << current->value << " |" << '\n';
     current = current->next;
   }
-  std::cout << "НИЗ" << std::endl;
+  std::cout << "НИЗ" << '\n';
 }

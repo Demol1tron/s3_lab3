@@ -57,7 +57,7 @@ class M {
   void resize(size_t newCap);
 
  public:
-  M(const std::string& name);
+  M(std::string name);
   ~M();
 
   std::string getName() const { return name_; }
@@ -82,7 +82,7 @@ class F {
   std::string name_;
 
  public:
-  F(const std::string& name);
+  F(std::string name);
   ~F();
 
   std::string getName() const { return name_; }
@@ -110,7 +110,7 @@ class L {
   std::string name_;
 
  public:
-  L(const std::string& name);
+  L(std::string name);
   ~L();
 
   std::string getName() const { return name_; }
@@ -140,7 +140,7 @@ class S {
   std::string name_;
 
  public:
-  S(const std::string& name);
+  S(std::string name);
   ~S();
 
   std::string getName() const { return name_; }
@@ -190,7 +190,7 @@ class T {
   void printPostOrder(const TNode* node) const;
 
  public:
-  T(const std::string& name);
+  T(std::string name);
   ~T();
 
   std::string getName() const { return name_; }
@@ -217,7 +217,7 @@ class Set {
   void rehash(size_t newCapacity);
 
  public:
-  Set(const std::string& name);
+  Set(std::string name);
   ~Set();
 
   std::string getName() const { return name_; }

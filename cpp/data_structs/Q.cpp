@@ -12,7 +12,7 @@ Q::Q(const std::string& name) : name_(name) {}
 // удалить очередь
 Q::~Q() {
   QNode* current = head_;
-  while (current) {
+  while (current != nullptr) {
     QNode* next = current->next;
     delete current;
     current = next;
@@ -20,12 +20,12 @@ Q::~Q() {
 }
 
 // добавить элемент в очередь
-OperationRes Q::enqueue(const std::string& value) {
-  QNode* newNode = new QNode;
+auto Q::enqueue(const std::string& value) -> OperationRes {
+  auto* newNode = new QNode;
   newNode->value = value;
   newNode->next = nullptr;  // Важно инициализировать
 
-  if (!tail_) {
+  if (tail_ == nullptr) {
     head_ = newNode;
     tail_ = newNode;
   } else {
@@ -37,14 +37,16 @@ OperationRes Q::enqueue(const std::string& value) {
   return OperationRes::SUCCESS;
 }
 
-OperationRes Q::pop(std::string& result) {
-  if (!head_) return OperationRes::EMPTY;
+auto Q::pop(std::string& result) -> OperationRes {
+  if (head_ == nullptr) {
+    return OperationRes::EMPTY;
+  }
 
   QNode* temp = head_;
   result = temp->value;
   head_ = head_->next;
 
-  if (!head_) {
+  if (head_ == nullptr) {
     tail_ = nullptr;
   }
 
@@ -54,19 +56,20 @@ OperationRes Q::pop(std::string& result) {
 }
 
 void Q::print() const {
-  std::cout << "Очередь '" << name_ << "' (размер: " << size_
-            << "):" << std::endl;
-  if (!head_) {
-    std::cout << "Очередь пуста." << std::endl;
+  std::cout << "Очередь '" << name_ << "' (размер: " << size_ << "):" << '\n';
+  if (head_ == nullptr) {
+    std::cout << "Очередь пуста." << '\n';
     return;
   }
 
   QNode* current = head_;
   std::cout << "head -> ";
-  while (current) {
+  while (current != nullptr) {
     std::cout << current->value;
-    if (current->next) std::cout << " -> ";
+    if (current->next != nullptr) {
+      std::cout << " -> ";
+    }
     current = current->next;
   }
-  std::cout << " <- tail" << std::endl;
+  std::cout << " <- tail" << '\n';
 }
