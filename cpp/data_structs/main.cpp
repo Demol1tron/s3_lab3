@@ -1,3 +1,5 @@
+// CREATE <имя> ARRAY/SET/LIST/DLIST...
+
 #include <iostream>
 #include "storage.h"
 #include "parser.h"
