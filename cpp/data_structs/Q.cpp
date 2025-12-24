@@ -4,10 +4,11 @@
 // PRINT <имя_структуры>
 
 #include <iostream>
+#include <utility>
 
 #include "structures.h"
 
-Q::Q(const std::string& name) : name_(name) {}
+Q::Q(std::string  name) : name_(std::move(name)) {}
 
 // удалить очередь
 Q::~Q() {

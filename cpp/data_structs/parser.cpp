@@ -174,7 +174,7 @@ auto executeCommand(Storage* storage, const ParsedCommand& cmd,
     if (cmd.operation == "MGET" && cmd.arguments.size() == 1) {
       size_t index = std::stoul(cmd.arguments[0]);
       return arr->get(index, result);
-    } else if (cmd.operation == "MDEL" && cmd.arguments.size() == 1) {
+    } if (cmd.operation == "MDEL" && cmd.arguments.size() == 1) {
       size_t index = std::stoul(cmd.arguments[0]);
       return arr->delAt(index);
     } else if (cmd.operation == "MREPLACE" && cmd.arguments.size() == 2) {
@@ -205,7 +205,8 @@ auto executeCommand(Storage* storage, const ParsedCommand& cmd,
         if (position == "front") {
           return list->pushFront(cmd.arguments[1]);
         }
-        if (position == "back") return list->pushBack(cmd.arguments[1]);
+        if (position == "back") { return list->pushBack(cmd.arguments[1]);
+}
       }
     } else if (cmd.operation == "FPUSHAFTER" && cmd.arguments.size() == 2) {
       FNode* target = list->find(cmd.arguments[0]);
@@ -227,8 +228,9 @@ auto executeCommand(Storage* storage, const ParsedCommand& cmd,
       if (position == "back") {
         return list->delBack();
       }
-      if (position == "value" && cmd.arguments.size() == 2)
+      if (position == "value" && cmd.arguments.size() == 2) {
         return list->delByValue(cmd.arguments[1]);
+}
     } else if (cmd.operation == "FDELAFTER" && cmd.arguments.size() == 1) {
       FNode* target = list->find(cmd.arguments[0]);
       if (target == nullptr) {
@@ -267,7 +269,8 @@ auto executeCommand(Storage* storage, const ParsedCommand& cmd,
         if (position == "front") {
           return list->pushFront(cmd.arguments[1]);
         }
-        if (position == "back") return list->pushBack(cmd.arguments[1]);
+        if (position == "back") { return list->pushBack(cmd.arguments[1]);
+}
       }
     } else if (cmd.operation == "LPUSHAFTER" && cmd.arguments.size() == 2) {
       LNode* target = list->find(cmd.arguments[0]);
@@ -301,8 +304,9 @@ auto executeCommand(Storage* storage, const ParsedCommand& cmd,
       if (position == "back") {
         return list->delBack();
       }
-      if (position == "value" && cmd.arguments.size() == 2)
+      if (position == "value" && cmd.arguments.size() == 2) {
         return list->delByValue(cmd.arguments[1]);
+}
     } else if (cmd.operation == "LGET" && cmd.arguments.size() == 1) {
       if (cmd.arguments[0] == "size") {
         result = std::to_string(list->getLength());
@@ -353,7 +357,7 @@ auto executeCommand(Storage* storage, const ParsedCommand& cmd,
     if (cmd.operation == "TISFULL") {
       result = tree->isFull() ? "ДА" : "НЕТ";
       return OperationRes::SUCCESS;
-    } else if (cmd.operation == "TSIZE") {
+    } if (cmd.operation == "TSIZE") {
       result = std::to_string(tree->getSize());
       return OperationRes::SUCCESS;
     }
@@ -370,7 +374,7 @@ auto executeCommand(Storage* storage, const ParsedCommand& cmd,
     if (cmd.operation == "SETSIZE") {
       result = std::to_string(set->getSize());
       return OperationRes::SUCCESS;
-    } else if (cmd.operation == "SETAT" && cmd.arguments.size() == 1) {
+    } if (cmd.operation == "SETAT" && cmd.arguments.size() == 1) {
       if (set->contains(cmd.arguments[0])) {
         result = "TRUE";
         return OperationRes::SUCCESS;

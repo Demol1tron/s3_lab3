@@ -161,7 +161,7 @@ class Q {
   std::string name_;
 
  public:
-  Q(const std::string& name);
+  Q(std::string  name);
   ~Q();
 
   std::string getName() const { return name_; }
